@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chat</title>
+</head>
+
+<body>
+
+<h2>Chat Test</h2>
+
+<div id="messages"></div>
+
+<input id="msg" placeholder="Type message">
+<button onclick="send()">Send</button>
+
+<script type="module">
+
+import { createClient } from
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+"https://vlhdzukibuscqoofjlpc.supabase.co",
+"sb_publishable_pXaa1Z0i1C2pcfkgOGUZGA_P4tw758p"
+)
+
+async function send(){
+
+let text = document.getElementById("msg").value
+
+await supabase.from("messages").insert({
+room_id:"testroom",
+sender_id:"user1",
+message:text
+})
+
+}
+
+supabase.channel("chat")
+.on(
+'postgres_changes',
+{event:'INSERT',schema:'public',table:'messages'},
+payload => {
+
+let div = document.createElement("div")
+div.innerText = payload.new.message
+document.getElementById("messages").appendChild(div)
+
+})
+.subscribe()
+
+</script>
+
+</body>
+</html>
