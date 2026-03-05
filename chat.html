@@ -33,12 +33,13 @@ const { data, error } = await supabase
 room_id:"testroom",
 sender_id:"user1",
 message:text
-console.log(data)
-console.log(error)
 })
+
+console.log(error)
 
 }
 
+window.send = send;
 supabase.channel("chat")
 .on(
 'postgres_changes',
