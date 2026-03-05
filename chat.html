@@ -27,10 +27,14 @@ async function send(){
 
 let text = document.getElementById("msg").value
 
-await supabase.from("messages").insert({
+const { data, error } = await supabase
+.from("messages")
+.insert({
 room_id:"testroom",
 sender_id:"user1",
 message:text
+console.log(data)
+console.log(error)
 })
 
 }
