@@ -40,6 +40,24 @@ console.log(error)
 }
 
 window.send = send;
+
+
+// LOAD OLD MESSAGES
+const { data: existing } = await supabase
+.from("messages")
+.select("*")
+.eq("room_id", "testroom")
+.order("created_at", { ascending: true })
+.limit(50);
+
+existing?.forEach(m => {
+const div = document.createElement("div");
+div.textContent = m.message;
+document.getElementById("messages").appendChild(div);
+});
+
+
+// REALTIME LISTENER
 supabase.channel("chat")
 .on(
 'postgres_changes',
@@ -51,18 +69,6 @@ div.innerText = payload.new.message
 document.getElementById("messages").appendChild(div)
 
 })
-const { data: existing } = await supabase
-  .from("messages")
-  .select("*")
-  .eq("room_id", "testroom")
-  .order("created_at", { ascending: true })
-  .limit(50);
-
-existing?.forEach(m => {
-  const div = document.createElement("div");
-  div.textContent = m.message;
-  document.getElementById("messages").appendChild(div);
-});
 .subscribe()
 
 </script>
