@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta charset="UTF-8">
 <title>Chat Test</title>
@@ -9,12 +10,20 @@ body{
 font-family: Arial;
 margin:40px;
 }
+
 #messages{
 border:1px solid #ccc;
 height:300px;
 overflow:auto;
 padding:10px;
 margin-bottom:10px;
+}
+
+.message{
+padding:5px;
+margin-bottom:5px;
+background:#f2f2f2;
+border-radius:5px;
 }
 </style>
 
@@ -36,8 +45,37 @@ import { createClient } from
 
 const supabase = createClient(
 "https://vlhdzukibuscqoofjlpc.supabase.co",
-"sb_publishable_pXaa1Z0i1C2pcfkgOGUZGA_P4tw758p"
+"YOUR_PUBLISHABLE_KEY"
 )
+
+const room="testroom"
+
+async function loadMessages(){
+
+const {data,error}=await supabase
+.from("messages")
+.select("*")
+.eq("room_id",room)
+.order("created_at",{ascending:true})
+
+data.forEach(msg=>{
+showMessage(msg.message)
+})
+
+}
+
+function showMessage(text){
+
+let div=document.createElement("div")
+div.className="message"
+div.textContent=text
+
+document.getElementById("messages").appendChild(div)
+
+document.getElementById("messages").scrollTop=
+document.getElementById("messages").scrollHeight
+
+}
 
 async function sendMessage(){
 
@@ -48,7 +86,7 @@ if(!text) return
 const {error}=await supabase
 .from("messages")
 .insert({
-room_id:"testroom",
+room_id:room,
 sender_id:"user1",
 message:text
 })
@@ -59,23 +97,30 @@ document.getElementById("msg").value=""
 
 }
 
-document.getElementById("sendBtn").addEventListener("click",sendMessage)
+document
+.getElementById("sendBtn")
+.addEventListener("click",sendMessage)
 
 supabase
 .channel("chat")
 .on(
 "postgres_changes",
-{event:"INSERT",schema:"public",table:"messages"},
+{
+event:"INSERT",
+schema:"public",
+table:"messages"
+},
 (payload)=>{
 
-let div=document.createElement("div")
-div.textContent=payload.new.message
+if(payload.new.room_id!==room) return
 
-document.getElementById("messages").appendChild(div)
+showMessage(payload.new.message)
 
 }
 )
 .subscribe()
+
+loadMessages()
 
 </script>
 
