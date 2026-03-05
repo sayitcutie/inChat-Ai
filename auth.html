@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Login / Signup</title>
+
+<style>
+body{
+font-family:Arial;
+margin:40px;
+}
+
+input{
+display:block;
+margin-bottom:10px;
+padding:8px;
+width:250px;
+}
+
+button{
+padding:8px 20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>Account</h2>
+
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<input id="username" placeholder="username (signup only)">
+
+<button id="signup">Signup</button>
+<button id="login">Login</button>
+
+<p id="status"></p>
+
+<script type="module">
+
+import { createClient } from
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+"https://vlhdzukibuscqoofjlpc.supabase.co",
+"sb_publishable_pXaa1Z0i1C2pcfkgOGUZGA_P4tw758p"
+)
+
+async function signup(){
+
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
+let username=document.getElementById("username").value.toLowerCase()
+
+if(!username.match(/^[a-z0-9._]+$/)){
+document.getElementById("status").innerText="Invalid username"
+return
+}
+
+const {data,error}=await supabase.auth.signUp({
+email:email,
+password:password
+})
+
+if(error){
+document.getElementById("status").innerText=error.message
+return
+}
+
+const user=data.user
+
+const {error:usernameError}=await supabase
+.from("users")
+.insert({
+id:user.id,
+username:username
+})
+
+if(usernameError){
+document.getElementById("status").innerText="Username already taken"
+return
+}
+
+document.getElementById("status").innerText="Account created"
+
+}
+
+async function login(){
+
+let email=document.getElementById("email").value
+let password=document.getElementById("password").value
+
+const {error}=await supabase.auth.signInWithPassword({
+email:email,
+password:password
+})
+
+if(error){
+document.getElementById("status").innerText=error.message
+return
+}
+
+document.getElementById("status").innerText="Logged in"
+
+}
+
+document.getElementById("signup").onclick=signup
+document.getElementById("login").onclick=login
+
+</script>
+
+</body>
+
+</html>
