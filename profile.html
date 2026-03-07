@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>User Profile</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</head>
+
+<body>
+
+<h2 id="username"></h2>
+
+<div id="qrcode"></div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search)
+const username = params.get("u")
+
+document.getElementById("username").innerText = username
+
+const profileURL =
+"https://sayitcutie.github.io/inChat-Ai/u/" + username
+
+new QRCode(document.getElementById("qrcode"), {
+text: profileURL,
+width:200,
+height:200
+})
+
+</script>
+
+</body>
+
+</html>
